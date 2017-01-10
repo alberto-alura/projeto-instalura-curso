@@ -9,7 +9,7 @@ export default class Timeline extends Component {
     }
 
     componentDidMount(){
-      fetch('http://localhost:8080/api/public/fotos/alots')
+      fetch('http://localhost:8080/api/public/fotos/rafael')
        .then(response => response.json())
        .then(fotos => {
          this.setState({fotos:fotos});
