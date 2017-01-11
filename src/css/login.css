@@ -1,0 +1,21 @@
+.login-box {
+    position : absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    background: white;
+    padding: 1em;
+}
+
+.login-box input {
+    display: block;
+    border-radius: 5px;
+    margin: 1em auto;
+    border: 1px solid #dbdbdb;
+}
+
+.login-box input[type='submit'] {
+    background: #3897f0;
+    border-color: #3897f0;
+    color: white;    
+}
