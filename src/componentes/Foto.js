@@ -11,44 +11,13 @@ class FotoAtualizacoes extends Component {
 
     like(event){
       event.preventDefault();
-
-      fetch(`http://localhost:8080/api/fotos/${this.props.foto.id}/like?X-AUTH-TOKEN=${localStorage.getItem('auth-token')}`,{method:'POST'})
-        .then(response => {
-          if(response.ok) {
-            return response.json();
-          } else {            
-            throw new Error("não foi possível realizar o like da foto");
-          }
-        })
-        .then(liker => {
-          this.setState({likeada : !this.state.likeada});
-          Pubsub.publish('atualiza-liker',{fotoId:this.props.foto.id,liker});
-        });
+      this.setState({likeada : !this.state.likeada});
+      this.props.like(this.props.foto.id);
     }
 
     comenta(event){
       event.preventDefault();
-
-
-      const requestInfo = {
-        method:'POST',
-        body:JSON.stringify({texto:this.comentario.value}),
-        headers: new Headers({
-          'Content-type':'application/json'
-        })
-      };
-
-      fetch(`http://localhost:8080/api/fotos/${this.props.foto.id}/comment?X-AUTH-TOKEN=${localStorage.getItem('auth-token')}`,requestInfo)
-        .then(response => {
-          if(response.ok){
-            return response.json();
-          } else {
-            throw new Error("não foi possível comentar");
-          }
-        })
-        .then(novoComentario => {
-          Pubsub.publish('novos-comentarios',{fotoId:this.props.foto.id,novoComentario});
-        })
+      this.props.comenta(this.props.foto.id,this.comentario.value);
     }
 
     render(){
@@ -155,7 +124,7 @@ export default class FotoItem extends Component {
             <FotoHeader foto={this.props.foto}/>
             <img alt="foto" className="foto-src" src={this.props.foto.urlFoto}/>
             <FotoInfo foto={this.props.foto}/>
-            <FotoAtualizacoes foto={this.props.foto}/>
+            <FotoAtualizacoes foto={this.props.foto} like={this.props.like} comenta={this.props.comenta}/>
           </div>            
         );
     }
