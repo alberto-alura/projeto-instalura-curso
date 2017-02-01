@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import FotoItem from './Foto';
-import Pubsub from 'pubsub-js';
 import ReactCSSTransitionGroup from 'react/lib/ReactCSSTransitionGroup';
 import LogicaTimeline from '../logicas/LogicaTimeline'
 
@@ -14,15 +13,9 @@ export default class Timeline extends Component {
     }
 
     componentWillMount(){
-      Pubsub.subscribe('timeline',(topico,fotos) => {
+      this.logicaTimeline.subscribe(fotos => {
         this.setState({fotos});
-      });
-
-      Pubsub.subscribe('novos-comentarios',(topico,infoComentario) => {
-        const fotoAchada = this.state.fotos.find(foto => foto.id === infoComentario.fotoId);        
-        fotoAchada.comentarios.push(infoComentario.novoComentario);
-        this.setState({fotos:this.state.fotos});        
-      });      
+      })
     }
 
     carregaFotos(){  
@@ -33,13 +26,7 @@ export default class Timeline extends Component {
       } else {
         urlPerfil = `http://localhost:8080/api/public/fotos/${this.login}`;
       }
-
-      fetch(urlPerfil)
-       .then(response => response.json())
-       .then(fotos => {         
-         this.setState({fotos:fotos});
-         this.logicaTimeline = new LogicaTimeline(fotos);
-       });      
+      this.logicaTimeline.lista(urlPerfil);
     }
 
     componentDidMount(){
@@ -58,25 +45,7 @@ export default class Timeline extends Component {
     }
 
     comenta(fotoId,textoComentario) {
-      const requestInfo = {
-        method:'POST',
-        body:JSON.stringify({texto:textoComentario}),
-        headers: new Headers({
-          'Content-type':'application/json'
-        })
-      };
-
-      fetch(`http://localhost:8080/api/fotos/${fotoId}/comment?X-AUTH-TOKEN=${localStorage.getItem('auth-token')}`,requestInfo)
-        .then(response => {
-          if(response.ok){
-            return response.json();
-          } else {
-            throw new Error("não foi possível comentar");
-          }
-        })
-        .then(novoComentario => {
-          Pubsub.publish('novos-comentarios',{fotoId,novoComentario});
-        });      
+      this.logicaTimeline.comenta(fotoId,textoComentario);
     }
 
     render(){
@@ -87,7 +56,7 @@ export default class Timeline extends Component {
           transitionEnterTimeout={500}
           transitionLeaveTimeout={300}>
             {
-              this.state.fotos.map(foto => <FotoItem key={foto.id} foto={foto} like={this.like.bind(this)} comenta={this.comenta}/>)
+              this.state.fotos.map(foto => <FotoItem key={foto.id} foto={foto} like={this.like.bind(this)} comenta={this.comenta.bind(this)}/>)
             }               
         </ReactCSSTransitionGroup>        
  
