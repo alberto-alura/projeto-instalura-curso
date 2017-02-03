@@ -1,15 +1,22 @@
 import React, { Component } from 'react';
-import Pubsub from 'pubsub-js';
+import TimelineApi from '../logicas/TimelineApi';
 
 export default class Header extends Component {
 
+    constructor(){
+      super();
+      this.state = {msg:''};
+    }
+
+    componentDidMount(){
+      this.props.store.subscribe(() => {
+        this.setState({msg:this.props.store.getState().notificacao});
+      });
+    }
+
     pesquisa(event){
       event.preventDefault();
-      fetch(`http://localhost:8080/api/public/fotos/${this.loginPesquisado.value}`)
-        .then(response => response.json())
-        .then(fotos => {
-          Pubsub.publish('timeline',fotos);
-        });
+      this.props.store.dispatch(TimelineApi.pesquisa(this.loginPesquisado.value));
     }
 
     render(){
@@ -28,6 +35,7 @@ export default class Header extends Component {
           <nav>
             <ul className="header-nav">
               <li className="header-nav-item">
+                <span>{this.state.msg}</span>
                 <a href="#">
                   ♡
                   {/*                 ♥ */}
